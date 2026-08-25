@@ -50,14 +50,17 @@ HWND _console_HWND = 0;
 BYTE ConfigPriorityClass = 1;
 uint32_t GamePriorityClass = NORMAL_PRIORITY_CLASS;
 
-static bool ResolveGamePath(wstring& path, bool genshin)
+static bool ResolveGamePath(const wstring& configuredPath, bool genshin, wstring& resolvedPath)
 {
-    const DWORD attributes = GetFileAttributesW(path.c_str());
+    const DWORD attributes = GetFileAttributesW(configuredPath.c_str());
     if (attributes == INVALID_FILE_ATTRIBUTES)
         return false;
 
     if (!(attributes & FILE_ATTRIBUTE_DIRECTORY))
+    {
+        resolvedPath = configuredPath;
         return true;
+    }
 
     const wchar_t* executableNames[] = {
         L"YuanShen.exe",
@@ -71,17 +74,18 @@ static bool ResolveGamePath(wstring& path, bool genshin)
         sizeof(executableNames) / sizeof(executableNames[0]) :
         sizeof(starRailExecutableNames) / sizeof(starRailExecutableNames[0]);
 
-    if (!path.empty() && path.back() != L'\\')
-        path += L'\\';
+    wstring directoryPath = configuredPath;
+    if (!directoryPath.empty() && directoryPath.back() != L'\\')
+        directoryPath += L'\\';
 
     for (size_t i = 0; i < nameCount; ++i)
     {
-        wstring candidate = path + names[i];
+        wstring candidate = directoryPath + names[i];
         const DWORD candidateAttributes = GetFileAttributesW(candidate.c_str());
         if (candidateAttributes != INVALID_FILE_ATTRIBUTES &&
             !(candidateAttributes & FILE_ATTRIBUTE_DIRECTORY))
         {
-            path = candidate;
+            resolvedPath = candidate;
             return true;
         }
     }
@@ -1263,21 +1267,19 @@ static bool LoadConfig()
     
     if (isGenshin)
     {
-        if (!ResolveGamePath(GenGamePath, true))
+        if (!ResolveGamePath(GenGamePath, true, GamePath))
         {
             wprintf_s(L"\n Genshin Path Error!\n Plase open Genshin to set game path.\n 路径错误，请手动打开原神来设置游戏路径 \n");
             goto __loadconfig;
         }
-		GamePath = GenGamePath;
     }
     else
     {
-        if (!ResolveGamePath(HKSRGamePath, false))
+                if (!ResolveGamePath(HKSRGamePath, false, GamePath))
         {
             wprintf_s(L"\n HKSR Path Error!\n Plase open StarRail to set game path.\n 路径错误，请手动打开崩铁来设置游戏路径 \n");
             goto __loadconfig;
         }
-		GamePath = HKSRGamePath;
     }
     isAntimiss = reader.GetBoolean(L"Setting", L"IsAntiMisscontact", isAntimiss);
     Target_set_30 = reader.GetInteger(L"Setting", L"GenShinTarget30", Target_set_30);
