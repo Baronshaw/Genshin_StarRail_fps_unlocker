@@ -14,7 +14,16 @@
  - You can download the compiled binary over at [Release](https://github.com/winTEuser/Genshin_StarRail_fps_unlocker/releases) if you don't want to compile it yourself
 
  ## Compiling
- - Use Visual Studio 2022 Community Edition or Vscode with MSVC
+ - On Windows, install **Visual Studio 2022 Community Edition** with the **Desktop development with C++** workload. Make sure the MSVC v143 build tools, Windows 10/11 SDK, and CMake tools are selected.
+ - Open this repository folder in Visual Studio, select the `x64-Release` configuration, and build the `FPSUnlocker` target.
+ - For VS Code, install the Microsoft C/C++ and CMake Tools extensions, then select the Visual Studio 2022 amd64 kit and configure the project with CMake. Build the `FPSUnlocker` target in `x64-Release`.
+ - The project requires a Windows x64 MSVC environment because it uses Win32 APIs, MASM assembly, and an administrator manifest. The Linux development container cannot compile the executable.
+
+ ## Game Path Configuration
+ - `GenshinPath` and `HKSRPath` accept either the full executable path or the game's installation directory.
+ - For Genshin, a directory is searched for `YuanShen.exe` and then `GenshinImpact.exe`, so the same setting works for CN and OS versions, for example `E:\Entertainments\Genshin Impact Game\`.
+ - For Honkai: Star Rail, the game executable is `StarRail.exe` for both CN and OS installations. A directory such as `E:\Games\StarRail\` is supported.
+ - Existing full executable paths remain supported.
 
  ## Usage
  - Run the exe and click the game you want to open. 

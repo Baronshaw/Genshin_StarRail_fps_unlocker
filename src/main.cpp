@@ -50,6 +50,45 @@ HWND _console_HWND = 0;
 BYTE ConfigPriorityClass = 1;
 uint32_t GamePriorityClass = NORMAL_PRIORITY_CLASS;
 
+static bool ResolveGamePath(wstring& path, bool genshin)
+{
+    const DWORD attributes = GetFileAttributesW(path.c_str());
+    if (attributes == INVALID_FILE_ATTRIBUTES)
+        return false;
+
+    if (!(attributes & FILE_ATTRIBUTE_DIRECTORY))
+        return true;
+
+    const wchar_t* executableNames[] = {
+        L"YuanShen.exe",
+        L"GenshinImpact.exe"
+    };
+    const wchar_t* starRailExecutableNames[] = {
+        L"StarRail.exe"
+    };
+    const wchar_t** names = genshin ? executableNames : starRailExecutableNames;
+    const size_t nameCount = genshin ?
+        sizeof(executableNames) / sizeof(executableNames[0]) :
+        sizeof(starRailExecutableNames) / sizeof(starRailExecutableNames[0]);
+
+    if (!path.empty() && path.back() != L'\\')
+        path += L'\\';
+
+    for (size_t i = 0; i < nameCount; ++i)
+    {
+        wstring candidate = path + names[i];
+        const DWORD candidateAttributes = GetFileAttributesW(candidate.c_str());
+        if (candidateAttributes != INVALID_FILE_ATTRIBUTES &&
+            !(candidateAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        {
+            path = candidate;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 typedef struct hooked_func_struct
 {
@@ -1224,7 +1263,7 @@ static bool LoadConfig()
     
     if (isGenshin)
     {
-        if (GetFileAttributesW(GenGamePath.c_str()) == INVALID_FILE_ATTRIBUTES)
+        if (!ResolveGamePath(GenGamePath, true))
         {
             wprintf_s(L"\n Genshin Path Error!\n Plase open Genshin to set game path.\n 路径错误，请手动打开原神来设置游戏路径 \n");
             goto __loadconfig;
@@ -1233,7 +1272,7 @@ static bool LoadConfig()
     }
     else
     {
-        if (GetFileAttributesW(HKSRGamePath.c_str()) == INVALID_FILE_ATTRIBUTES)
+        if (!ResolveGamePath(HKSRGamePath, false))
         {
             wprintf_s(L"\n HKSR Path Error!\n Plase open StarRail to set game path.\n 路径错误，请手动打开崩铁来设置游戏路径 \n");
             goto __loadconfig;

@@ -22,7 +22,16 @@
  - 解锁器放哪都行 **除了游戏目录**
  - 运行之前确保游戏是关闭的
  - 用管理员运行解锁器
- - 自行编译 使用 Visual Studio 或 配置好msvc环境的Vscode
+ - 自行编译：Windows 下安装 **Visual Studio 2022 Community Edition**，勾选“使用 C++ 的桌面开发”工作负载，并安装 MSVC v143、Windows 10/11 SDK 和 CMake 工具。
+ - 用 Visual Studio 打开仓库，选择 `x64-Release` 配置，构建 `FPSUnlocker` 项目。
+ - 使用 VS Code 时安装 Microsoft C/C++ 和 CMake Tools 扩展，选择 Visual Studio 2022 amd64 工具包，配置并构建 CMake 的 `FPSUnlocker` 目标。
+ - 本项目依赖 Windows x64、Win32 API、MASM 汇编和管理员权限清单；Linux 开发容器不能直接编译此程序。
+
+## 游戏路径配置
+ - `GenshinPath` 和 `HKSRPath` 现在既支持完整 exe 路径，也支持游戏安装目录。
+ - 原神目录会依次查找 `YuanShen.exe` 和 `GenshinImpact.exe`，因此国服和国际服可以共用配置，例如 `E:\Entertainments\Genshin Impact Game\`。
+ - 崩铁国服和国际服的游戏进程名都是 `StarRail.exe`，可以填写类似 `E:\Games\StarRail\` 的安装目录。
+ - 原有的完整 exe 路径写法仍然兼容。
 >使用管理员运行是因为游戏必须由解锁器启动，游戏本身就需要管理员权限了，所以负责启动的也是需要的
 
 ## 快速启动命令行
